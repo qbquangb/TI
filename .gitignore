@@ -1,0 +1,4 @@
+tests/
+build/
+dist/
+thuonglib.egg-info/
