@@ -6,19 +6,19 @@ def d_folder(path_folder):
                 file_path = os.path.join(root, file)
                 try:
                     os.remove(file_path)
-                    print(f"Deleted file: {file_path}")
+                    print(f"Đã xóa file: {file_path}")
                 except Exception as e:
-                    print(f"Failed to delete file {file_path}: {e}")
+                    print(f"Đã lỗi khi xóa file: {file_path}, lỗi: {e}")
             for dir in dirs:
                 dir_path = os.path.join(root, dir)
                 try:
                     # Only remove empty directories
                     os.rmdir(dir_path)
-                    print(f"Deleted directory: {dir_path}")
+                    print(f"Đã xóa thư mục: {dir_path}")
                 except Exception as e:
-                    print(f"Failed to clean {path_folder}: {e}")
+                    print(f"Đã lỗi khi xóa thư mục: {dir_path}, lỗi: {e}")
 
-def clean_files_temp():
+def clean_files_temp_files_recycleBin():
     import os
     from thuonglib.recycleBin import empty_recycle_bin
     temp_folder = os.path.join(os.getenv('SystemRoot'), 'TEMP')
@@ -31,7 +31,7 @@ def clean_files_temp():
     if user_input == 'y':
         d_folder(temp_folder)
     else:
-        print("Bo qua viec xoa tep tam thoi.")
+        print(f"Bo qua viec xoa tep tam thoi tại thư mục: {temp_folder}")
     print("-" * 50)
     
     temp_folder = os.getenv("TEMP")

@@ -73,7 +73,7 @@ class AESCipherCBC:
         """Tạo instance từ key đã lưu."""
         return cls(key=key_bytes)
     
-def encrypt_file_AES_CBC(del_input_file = 1) -> None:
+def encrypt_file_AES_CBC(del_input_file = 1):
     input_file = r"{}".format(input("Nhap duong dan file can ma hoa: "))
     aes = AESCipherCBC()
 
@@ -95,10 +95,11 @@ def encrypt_file_AES_CBC(del_input_file = 1) -> None:
         os.remove(input_file)
         print(f"File goc {input_file} da duoc xoa.")
         print("**********************************************************************")
-        return None
+    input("Nhấn Enter để tiếp tục...")
     return aes.key, output_file, input_file
 
-def decrypt_file_AES_CBC(key_AES: bytes = None) -> None:
+def decrypt_file_AES_CBC(delete: bool = False, key_AES: bytes = None) -> None:
+    from pathlib import Path
     input_file = r"{}".format(input("Nhap duong dan file can giai ma: "))
     if key_AES:
         aes = AESCipherCBC(key_AES=key_AES)
@@ -111,6 +112,8 @@ def decrypt_file_AES_CBC(key_AES: bytes = None) -> None:
     decrypted_data = aes.decrypt(cipher_data)
 
     output_file = input_file[:-4]  # Loại bỏ phần mở rộng .enc
+    output_file = Path(output_file)
+    output_file = output_file.with_name("decrypt_" + output_file.name)
 
     with open(output_file, 'wb') as f:
         f.write(decrypted_data)
@@ -119,18 +122,12 @@ def decrypt_file_AES_CBC(key_AES: bytes = None) -> None:
     print(f"File da duoc giai ma va luu tai: {output_file}")
     print("**********************************************************************")
 
-    choice = input("Ban co muon xoa file ma hoa khong? (y/n): ").strip().lower()
-    while choice not in ('y', 'n'):
-        choice = input("Khong hop le. Vui long nhap 'y' hoac 'n': ").strip().lower()
-    if choice == 'y':
+    if delete:
         os.remove(input_file)
         print("**********************************************************************")
         print(f"File ma hoa {input_file} da duoc xoa.")
         print("**********************************************************************")
-    else:
-        print("**********************************************************************")
-        print("Khong xoa file ma hoa.")
-        print("**********************************************************************")
+    input("Nhấn Enter để tiếp tục...")
 
 # Ví dụ sử dụng
 if __name__ == '__main__':

@@ -9,7 +9,7 @@ def xor_decrypt(ciphertext: bytes, key: bytes) -> bytes:
     # cùng phép XOR, vì tính chất đảo ngược
     return xor_encrypt(ciphertext, key)
 
-def p_cipher():
+def p_cipher(file: str = ""):
     import os
     import getpass
     import base64
@@ -60,18 +60,27 @@ def p_cipher():
         ciphertext_base64_string = ciphertext_base64.decode('utf-8')
         print(f"Van ban da ma hoa (Base64): {ciphertext_base64.decode('utf-8')}")
 
-        # Đọc đường dẫn từ dòng số 2 trong tệp config.txt
-        config_file = "config.txt"
+        '''
+        Nội dung tệp:
+        ------------
+        # Duong dan luu thu muc passworld
+        D:\.MyDriver\backup\password
+        # key duoc lay tu bien moi truong.
+            cach dat: setx keypass "<ten_khoa_key>"
+        '''
+        config_file = file
         if os.path.exists(config_file):
             with open(config_file, "r") as f:
                 lines = f.readlines()
                 if len(lines) >= 2:
                     password_dir = lines[1].strip()  # Lấy dòng số 2 và loại bỏ khoảng trắng
                 else:
-                    print("Tệp config.txt không có đủ dòng.")
+                    print("Tệp configForFuntionP_cipher.txt không có đủ dòng.")
+                    input("Nhấn Enter để tiếp tục...")
                     return
         else:
             print(f"Tệp cấu hình '{config_file}' không tồn tại.")
+            input("Nhấn Enter để tiếp tục...")
             return
         # Kiểm tra và tạo thư mục nếu chưa tồn tại
         if not os.path.exists(password_dir):
@@ -89,20 +98,21 @@ def p_cipher():
         with open(file_path_note, "a") as f:
             f.write(f"{add_note}\n")
         print(f"Ghi chu da duoc ghi vao tep '{file_path_note}'.")
+        input("Nhấn Enter để tiếp tục...")
 
     # Ket thuc ma hoa *******************************************************************************
     # Thuc hien giai ma ****************************************************************************
 
     if OPTION & FLAG_DECRYPT:
         key = getpass.getpass("Nhap khoa mat khau: ").encode('utf-8')
-        line_number = input("Nhap so dong can giai ma: ")
+        line_number = input("Nhap so dong can giai ma (số dòng bắt đầu tính từ 0): ")
         try:
             line_number = int(line_number)
         except ValueError:
             print("So dong khong hop le. Vui long nhap mot so nguyen.")
+            input("Nhấn Enter để tiếp tục...")
             return
-        # Đọc đường dẫn từ dòng số 2 trong tệp config.txt
-        config_file = "config.txt"
+        config_file = file
         if os.path.exists(config_file):
             with open(config_file, "r") as f:
                 lines = f.readlines()
@@ -110,9 +120,11 @@ def p_cipher():
                     password_dir = lines[1].strip()  # Lấy dòng số 2 và loại bỏ khoảng trắng
                 else:
                     print("Tệp config.txt không có đủ dòng.")
+                    input("Nhấn Enter để tiếp tục...")
                     return
         else:
             print(f"Tệp cấu hình '{config_file}' không tồn tại.")
+            input("Nhấn Enter để tiếp tục...")
             return
         
         # Sử dụng đường dẫn để đọc tệp
@@ -121,10 +133,11 @@ def p_cipher():
         try:
             with open(file_path, "rb") as f:
                 lines = f.readlines()
-            if line_number <= 0 or line_number > len(lines):
+            if line_number < 0 or line_number > len(lines) - 1:
                 print("So dong vuot qua pham vi cua tep.")
+                input("Nhấn Enter để tiếp tục...")
                 return
-            ciphertext = lines[line_number - 1].strip()
+            ciphertext = lines[line_number].strip()
             ciphertext = base64.b64decode(ciphertext)
             plaintext = xor_decrypt(ciphertext, key)
             print(f"VAN BAN DA GIAI MA: {plaintext.decode('utf-8')}")
@@ -132,6 +145,7 @@ def p_cipher():
             print(f"Tep '{file_path}' khong ton tai.")
         except Exception as e:
             print(f"Loi khi doc tep: {e}")
+        input("Nhấn Enter để tiếp tục...")
 
     # ket thuc giai ma ****************************************************************************
 

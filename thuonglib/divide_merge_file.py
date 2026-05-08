@@ -3,7 +3,7 @@ import os
 
 def divide_file():
     input_file = r"{}".format(input("Nhap duong dan file can chia: "))
-    chunk_size = int(input("Nhap kich thuoc moi phan (byte, mac dinh 12MB): ") or 12 * 1024 * 1024)
+    chunk_size = int(input("Nhap kich thuoc moi phan (byte, mac dinh 12MiB): ") or 12 * 1024 * 1024)
     print(f"Kich thuoc moi phan: {chunk_size / (1024 * 1024):.2f} MB")
     chunks = []
     with open(input_file, 'rb') as f:
@@ -21,11 +21,10 @@ def divide_file():
         print(f"Da luu phan {i + 1} tai: {chunk_input_file}")
     print("Da chia xong cac phan cua file.")
     print("*********************************************************************")
-    os.remove(input_file)
-    print(f"Da xoa file goc: {input_file}")
-    print("**********************************************************************")
+    input("Nhấn Enter để tiếp tục...")
 
 def merge_file():
+    from pathlib  import Path
     input_file = r"{}".format(input("Nhap duong dan file can ghep: "))
     input_file = input_file[:-7]
     chunks = []
@@ -38,12 +37,12 @@ def merge_file():
         else:
             with open(chunk_input_file, 'rb') as chunk_file:
                 chunks.append(chunk_file.read())
-            os.remove(chunk_input_file)
-            print(f"Da xoa phan {i} tai: {chunk_input_file}")
             i += 1
-    
-    with open(input_file, 'wb') as output:
+    out_file = Path(input_file)
+    out_file = out_file.with_name("merge_" + out_file.name)
+    with open(out_file, 'wb') as output:
         for chunk in chunks:
             output.write(chunk)
     
-    print(f"Da ghep cac phan thanh: {input_file}")
+    print(f"Đã ghép các phần và lưu tại: {out_file}")
+    input("Nhấn Enter để tiếp tục...")

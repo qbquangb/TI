@@ -8,13 +8,13 @@ import os
 import base64
 
 class RSA_OAEP_Cipher:
-    def __init__(self, init_key: int = 1, key_size: int = 2048):
+    def __init__(self, file: str = '', init_key: int = 1, key_size: int = 2048):
         if init_key:
             # Sinh cặp khóa RSA với kích thước key_size bit
             self.key = RSA.generate(key_size)
             self.public_key = self.key.publickey()
         else:
-            key, public_key = import_keys_RSA_OAEP()
+            key, public_key = import_keys_RSA_OAEP(file)
             self.key = key
             self.public_key = public_key
 
@@ -44,24 +44,25 @@ class RSA_OAEP_Cipher:
         cipher = PKCS1_OAEP.new(self.key)
         return cipher.decrypt(ciphertext)
 
-def export_keys_RSA_OAEP(path_config = 'config.yaml'):
+def export_keys_RSA_OAEP(path_config: str = ''):
     print("**********************************************************************")
-    data_print = """
-1. Tạo file cấu hình config.yaml với nội dung:
+    data_print = r"""
+1. Mở thư mục thuongcli, thường có định dạng như sau:
+C:\Users\Hii\AppData\Local\Programs\Python\ython310\Lib\site-packages\thuongcli
+2. Tạo file cấu hình configForKey_RSA_OAEP.yaml với nội dung tương tự (nơi bạn lưu khóa RSA):
 export_keys:
-    priv_path: G:\My Drive\backup\RSA_OAEP\private.pem
-    pub_path: G:\My Drive\backup\RSA_OAEP\public.pem
-2. Tạo thư mục G:\My Drive\backup\RSA_OAEP
-3. Di chuyển đến thư mục chứa file config.yaml
-4. Chạy lệnh: python RSA_OAEP.py"""
+    priv_path: G:\.MyDriver\backup\RSA_OAEP\private.pem
+    pub_path: G:\.MyDriver\backup\RSA_OAEP\public.pem
+"""
     print(data_print)
+    input("Nhấn Enter để tiếp tục...")
     del data_print
     print("**********************************************************************")
 
     # Khởi tạo đối tượng, sinh khóa
     rsa_cipher = RSA_OAEP_Cipher(key_size=2048)
 
-    with open('config.yaml', 'r', encoding='utf-8') as f:
+    with open(path_config, 'r', encoding='utf-8') as f:
         config = yaml.safe_load(f)
 
     # Chuyển đổi cấu hình thành dạng phẳng
@@ -88,9 +89,10 @@ export_keys:
     print(f"Khóa riêng đã được lưu tại: {priv_path}")
     print(f"Khóa công khai đã được lưu tại: {pub_path}")
     print("**********************************************************************")
+    input("Nhấn Enter để tiếp tục...")
     return
 
-def import_keys_RSA_OAEP(path_config = 'config.yaml'):
+def import_keys_RSA_OAEP(path_config: str = '' ):
     '''
     Trả về đối tượng khóa riêng và khóa công khai RSA đã được nhập từ file PEM.
 
@@ -98,7 +100,7 @@ def import_keys_RSA_OAEP(path_config = 'config.yaml'):
     print("Private Key:", key.export_key().decode('utf-8'))
     print("Public Key:", public_key.export_key().decode('utf-8'))
     '''
-    with open('config.yaml', 'r', encoding='utf-8') as f:
+    with open(path_config, 'r', encoding='utf-8') as f:
         config = yaml.safe_load(f)
 
     # Chuyển đổi cấu hình thành dạng phẳng
@@ -116,18 +118,20 @@ def import_keys_RSA_OAEP(path_config = 'config.yaml'):
         public_key = RSA.import_key(f.read())
     return key, public_key
 
-def encrypt_file():
-    '''
-    1. Sinh khóa đối xứng AES - 128 
+def encrypt_file(file: str = '', init_key = 0, delete: bool = False):
+    data_print = r'''
+    1. Sinh khóa đối xứng AES - 128
         (Note: khi xuất hiện dòng chữ "Nhap khoa AES 16 bytes: " thì nhấn Enter để tự động sinh khóa AES-128).
     2. Mã hóa file bằng AES-CBC với khóa AES đã sinh.
     3. Mã hóa khóa đối xứng AES - 128 bằng RSA-OAEP với khóa công khai.
     '''
+    print(data_print)
+    input("Nhấn Enter để tiếp tục...")
+    del data_print
 
-    print("Note: khi xuất hiện dòng chữ (Nhap khoa AES 16 bytes: ) thì nhấn Enter để tự động sinh khóa AES-128")
-    key_AES, output_file, input_file = encrypt_file_AES_CBC(del_input_file = 0)
+    key_AES, output_file, input_file = encrypt_file_AES_CBC(del_input_file = delete)
 
-    rsa_cipher = RSA_OAEP_Cipher(init_key = 0)
+    rsa_cipher = RSA_OAEP_Cipher(file = file, init_key = init_key)
     cipher_key_AES = rsa_cipher.encrypt(key_AES, rsa_cipher.public_key)
 
     output_file = output_file + ".enc_key_rsa"
@@ -135,55 +139,62 @@ def encrypt_file():
         f.write(cipher_key_AES)
     print(f"Khóa AES - 128 đã được mã hóa bằng RSA - OAEP và lưu tại: {output_file}")
     print("**********************************************************************")
-    os.remove(input_file)
-    print(f"File goc {input_file} da duoc xoa.")
-    print("**********************************************************************")
+    input("Nhấn Enter để tiếp tục...")
     return
 
-def decrypt_file():
-    '''
+def decrypt_file(file: str = '', init_key = 0, delete: bool = False):
+    data_print = r'''
     1. Dùng RSA - OAEP và khóa riêng để giải mã AES - 128 key.
     2. Dùng AES - 128 key để giải mã file.
     '''
+    print(data_print)
+    input("Nhấn Enter để tiếp tục...")
+    del data_print
 
     # 1. Dùng RSA - OAEP và khóa riêng để giải mã AES - 128 key.
-    rsa_cipher = RSA_OAEP_Cipher(init_key=0)
+    rsa_cipher = RSA_OAEP_Cipher(file = file, init_key = init_key)
 
     input_file_AES = r"{}".format(input("Nhập đường dẫn khóa AES - 128 key: "))
     with open(input_file_AES, 'rb') as f:
         enc_key_rsa = f.read()
     key_AES = rsa_cipher.decrypt(enc_key_rsa)
     # 2. Dùng AES - 128 key để giải mã file.
-    decrypt_file_AES_CBC(key_AES)
+    decrypt_file_AES_CBC(delete = delete, key_AES = key_AES)
 
-    choice = input(f"Ban co muon xoa file {input_file_AES} khong? (y/n): ").strip().lower()
-    while choice not in ('y', 'n'):
-        choice = input("Khong hop le. Vui long nhap 'y' hoac 'n': ").strip().lower()
-    if choice == 'y':
+    if delete:
         os.remove(input_file_AES)
         print("**********************************************************************")
-        print(f"File ma hoa {input_file_AES} da duoc xoa.")
+        print("File ma hoa khóa AES - 128 da duoc xoa.")
         print("**********************************************************************")
-    else:
-        print("**********************************************************************")
-        print(f"Khong xoa file {input_file_AES}.")
-        print("**********************************************************************")
+    input("Nhấn Enter để tiếp tục...")
 
-def encrypt_text_RSA():
-    rsa_cipher = RSA_OAEP_Cipher(init_key = 0)
+def encrypt_text_RSA(file: str = ''):
+    rsa_cipher = RSA_OAEP_Cipher(file = file, init_key = 0)
     plaintext = input("Nhap van ban can ma hoa, toi da 180 ki tu: ").encode('utf-8')
     ciphertext = rsa_cipher.encrypt(plaintext, rsa_cipher.public_key)
 
     ciphertext_base64 = base64.b64encode(ciphertext)
     ciphertext_base64_string = ciphertext_base64.decode('utf-8')
-    print(f"Van ban da ma hoa RSA Base64: {ciphertext_base64.decode('utf-8')}")
+    print(f"Van ban da ma hoa RSA Base64: {ciphertext_base64_string}")
 
-def decrypt_text_RSA():
-    rsa_cipher = RSA_OAEP_Cipher(init_key = 0)
+    folder_path = os.path.dirname(file)
+    output_dir = os.path.join(folder_path, "output")
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    output_file = os.path.join(output_dir, "res.txt")
+    with open(output_file, "w", encoding="utf-8") as f:
+        f.write(ciphertext_base64_string)
+    print(f"Da luu ciphertext Base64 vao: {output_file}")
+
+    input("Nhấn Enter để tiếp tục...")
+
+def decrypt_text_RSA(file: str = ''):
+    rsa_cipher = RSA_OAEP_Cipher(file = file, init_key = 0)
     ciphertext = input("Nhap van ban can giai ma: ").encode('utf-8')
     ciphertext = base64.b64decode(ciphertext)
     plaintext = rsa_cipher.decrypt(ciphertext)
     print(f"VAN BAN DA GIAI MA: {plaintext.decode('utf-8')}")
+    input("Nhấn Enter để tiếp tục...")
 
 if __name__ == '__main__':
     # export_keys_RSA_OAEP()

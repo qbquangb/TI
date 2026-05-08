@@ -21,7 +21,7 @@ def empty_recycle_bin():
     )
 
     if result == 0:
-        print("Da xoa sach Recycle Bin.")
+        print("Đã xóa sạch Recycle Bin.")
     return
 
 if __name__ == "__main__":
